@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- v3: تسجيل محصّن — أرقام عربية/إنجليزية، تنظيف الأحرف الخفية، Enter ذكي، بدائل للمتصفحات القديمة -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>جدول الإنجاز والتتبع لمدة شهر — تفاعلي</title>
@@ -149,7 +150,8 @@
   .fld-label{display:block; text-align:right; font-size:.85rem; font-weight:700; color:var(--dark); margin:10px 0 4px}
   .auth-card input{width:100%; border:2px solid var(--line); border-radius:10px; padding:11px 14px; font-size:1rem; font-family:inherit; background:#FBFAF8; color:var(--text)}
   .auth-card input:focus{outline:none; border-color:var(--gold)}
-  .auth-error{color:var(--red); font-size:.82rem; min-height:1.3em; margin-top:8px; font-weight:700; text-align:right}
+  .auth-error{color:var(--red); font-size:.9rem; min-height:1.4em; margin-top:8px; font-weight:800; text-align:right}
+  .auth-warn{display:none; background:#FBEFEC; border:2px solid #E0B7AC; color:#A85B49; border-radius:10px; padding:9px 12px; margin-top:12px; font-size:.8rem; font-weight:700; text-align:right; line-height:1.8}
   .auth-actions{display:flex; gap:10px; margin-top:6px}
   .auth-btn{flex:1; border-radius:10px; padding:11px 8px; font-family:inherit; font-weight:800; font-size:.95rem; cursor:pointer; transition:all .2s}
   .auth-btn.main{background:linear-gradient(270deg,var(--gold),var(--gold-dark)); border:none; color:#fff}
@@ -197,9 +199,10 @@
     <p class="auth-sub">سجّلي دخولك لعرض جدولك الخاص — لكل مستخدم بياناتها الخاصة بها</p>
     <label class="fld-label" for="authEmail">📧 البريد الإلكتروني</label>
     <input type="email" id="authEmail" placeholder="example@email.com" autocomplete="username">
-    <label class="fld-label" for="authPin">🔒 الرقم السري (4 إلى 8 أرقام)</label>
+    <label class="fld-label" for="authPin">🔒 الرقم السري (4 إلى 8 أرقام — عربي أو إنجليزي)</label>
     <input type="password" id="authPin" placeholder="••••" inputmode="numeric" maxlength="8" autocomplete="current-password">
-    <div class="auth-error" id="authError" role="alert"></div>
+    <div class="auth-error" id="authError" role="alert" aria-live="polite"></div>
+    <div class="auth-warn" id="authWarn">⚠️ متصفحك يمنع الحفظ التلقائي (تصفح خاص أو فتح من داخل تطبيق آخر) — يمكنك إنشاء الحساب لكن البيانات لن تُحفظ. افتحي الرابط في Chrome أو Safari كتطبيق مستقل.</div>
     <div class="auth-actions">
       <button type="button" class="auth-btn main" id="loginBtn">دخول</button>
       <button type="button" class="auth-btn alt" id="registerBtn">إنشاء حساب جديد</button>
@@ -634,20 +637,37 @@ var authEmail = document.getElementById('authEmail');
 var authPin = document.getElementById('authPin');
 var authError = document.getElementById('authError');
 
-function emailKeyOf(em){ return String(em).toLowerCase().trim(); }
+function normalizeDigits(str){
+  return String(str)
+    .replace(/[\u0660-\u0669]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x0660 + 48); })
+    .replace(/[\u06F0-\u06F9]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x06F0 + 48); });
+}
+function cleanEmail(str){
+  return normalizeDigits(str)
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF\u00A0\s]/g, '')
+    .toLowerCase();
+}
+function cleanPin(str){ return normalizeDigits(str).replace(/\s+/g, ''); }
+function emailKeyOf(em){ return cleanEmail(em); }
 function validEmail(em){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em); }
 function users(){ try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch(e) { return {}; } }
 function saveUsers(u){ try { localStorage.setItem(USERS_KEY, JSON.stringify(u)); } catch(e) {} }
-function hashPin(pin, salt){
-  var s = String(salt) + '::' + String(pin);
-  if (window.crypto && crypto.subtle && crypto.subtle.digest && window.TextEncoder){
-    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(buf){
-      return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
-    });
-  }
+function hashPinSync(s){
   var h1 = 5381, h2 = 52711, i;
   for (i = 0; i < s.length; i++){ var c = s.charCodeAt(i); h1 = ((h1 * 33) ^ c) >>> 0; h2 = ((h2 * 37) + c) >>> 0; }
-  return Promise.resolve(('0000000' + h1.toString(16)).slice(-8) + ('0000000' + h2.toString(16)).slice(-8));
+  return ('0000000' + h1.toString(16)).slice(-8) + ('0000000' + h2.toString(16)).slice(-8);
+}
+function hashPin(pin, salt){
+  var s = String(salt) + '::' + String(pin);
+  try {
+    if (window.Promise && window.crypto && crypto.subtle && crypto.subtle.digest && window.TextEncoder){
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(buf){
+        return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
+      });
+    }
+  } catch(e) {}
+  if (window.Promise) return Promise.resolve(hashPinSync(s));
+  return { then: function(f){ f(hashPinSync(s)); return this; } };
 }
 function showAuthError(msg){ authError.textContent = msg; }
 function clearAuthForm(){ authPin.value = ''; showAuthError(''); }
@@ -693,7 +713,7 @@ function maybeMigrateLegacy(){
   }
 }
 function doRegister(){
-  var em = emailKeyOf(authEmail.value), pin = authPin.value.trim();
+  var em = emailKeyOf(authEmail.value), pin = cleanPin(authPin.value);
   if (!validEmail(em)) return showAuthError('⚠️ أدخلي بريداً إلكترونياً صحيحاً');
   if (!/^\d{4,8}$/.test(pin)) return showAuthError('⚠️ الرقم السري يجب أن يكون من 4 إلى 8 أرقام');
   var u = users();
@@ -706,7 +726,7 @@ function doRegister(){
   });
 }
 function doLogin(){
-  var em = emailKeyOf(authEmail.value), pin = authPin.value.trim();
+  var em = emailKeyOf(authEmail.value), pin = cleanPin(authPin.value);
   if (!validEmail(em)) return showAuthError('⚠️ أدخلي بريداً إلكترونياً صحيحاً');
   if (!/^\d{4,8}$/.test(pin)) return showAuthError('⚠️ أدخلي الرقم السري');
   var rec = users()[em];
@@ -718,7 +738,11 @@ function doLogin(){
 }
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('registerBtn').addEventListener('click', doRegister);
-authPin.addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
+authPin.addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){
+    if (users()[cleanEmail(authEmail.value)]) doLogin(); else doRegister();
+  }
+});
 authEmail.addEventListener('keydown', function(e){ if (e.key === 'Enter') authPin.focus(); });
 
 document.getElementById('logoutBtn').addEventListener('click', function(){
@@ -760,6 +784,7 @@ document.getElementById('forgotBtn').addEventListener('click', function(){
 });
 
 buildDonut();
+if (!storageOK){ var aw = document.getElementById('authWarn'); if (aw) aw.style.display = 'block'; }
 var sess = null;
 try { sess = localStorage.getItem(SESS_KEY); } catch(e) {}
 if (sess && users()[sess]){
