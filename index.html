@@ -141,6 +141,32 @@
     .cal{gap:6px}
   }
 
+  /* ===== Auth (login / register) ===== */
+  #authScreen{display:none; min-height:75vh; align-items:flex-start; justify-content:center}
+  .auth-card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border-top:6px solid var(--gold); padding:26px 22px 20px; max-width:430px; width:100%; margin:5vh auto 0; text-align:center}
+  .auth-title{font-size:1.45rem; color:var(--dark); font-weight:800; margin:2px 0}
+  .auth-sub{font-size:.88rem; color:var(--muted); margin-bottom:14px}
+  .fld-label{display:block; text-align:right; font-size:.85rem; font-weight:700; color:var(--dark); margin:10px 0 4px}
+  .auth-card input{width:100%; border:2px solid var(--line); border-radius:10px; padding:11px 14px; font-size:1rem; font-family:inherit; background:#FBFAF8; color:var(--text)}
+  .auth-card input:focus{outline:none; border-color:var(--gold)}
+  .auth-error{color:var(--red); font-size:.82rem; min-height:1.3em; margin-top:8px; font-weight:700; text-align:right}
+  .auth-actions{display:flex; gap:10px; margin-top:6px}
+  .auth-btn{flex:1; border-radius:10px; padding:11px 8px; font-family:inherit; font-weight:800; font-size:.95rem; cursor:pointer; transition:all .2s}
+  .auth-btn.main{background:linear-gradient(270deg,var(--gold),var(--gold-dark)); border:none; color:#fff}
+  .auth-btn.main:hover{filter:brightness(1.05)}
+  .auth-btn.alt{background:none; border:2px solid var(--gold); color:var(--gold-dark)}
+  .auth-btn.alt:hover{background:var(--gold-soft)}
+  .auth-forgot{background:none; border:none; color:var(--muted); font-family:inherit; font-size:.8rem; margin-top:12px; cursor:pointer; text-decoration:underline}
+  .auth-note{font-size:.72rem; color:var(--muted); background:#F5F3EE; border-radius:10px; padding:8px 10px; margin-top:14px; text-align:right; line-height:1.8}
+  .auth-brand{margin-top:14px; font-size:.85rem; color:var(--muted)}
+  .auth-brand .en{color:var(--gold-dark); font-weight:800}
+  .user-bar{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; flex-wrap:wrap}
+  .user-chip{background:var(--gold-soft); color:var(--gold-dark); border-radius:99px; padding:5px 14px; font-size:.8rem; font-weight:700; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; direction:ltr}
+  .ub-btn{background:none; border:1.5px solid var(--line); color:var(--muted); border-radius:99px; padding:5px 12px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer; transition:all .2s}
+  .ub-btn:hover{border-color:var(--gold); color:var(--gold-dark)}
+  .ub-btn.ub-logout{border-color:#E0B7AC; color:#A85B49}
+  .ub-btn.ub-logout:hover{border-color:var(--red); color:var(--red)}
+
   /* ===== Banner & footer ===== */
   .celebrate{display:none; background:var(--green-soft); border:2px solid var(--green); color:#2C6E47; border-radius:var(--radius); padding:14px; text-align:center; font-weight:800; margin-top:16px; font-size:1.05rem}
   .celebrate.show{display:block; animation:pop .4s ease}
@@ -163,7 +189,28 @@
 </head>
 <body>
 <noscript><div class="nojs">⚠️ هذه الصفحة تفاعلية وتحتاج تشغيل JavaScript — افتحها بمتصفح حقيقي (Chrome على أندرويد أو Safari على آيفون) وليس داخل معاينة تطبيق آخر.</div></noscript>
-<div class="wrap">
+<!-- ===== شاشة الدخول ===== -->
+<div id="authScreen">
+  <div class="auth-card">
+    <span class="badge">( الخطة التطويرية المجانية )</span>
+    <h1 class="auth-title">جدول الإنجاز والتتبع لمدة شهر</h1>
+    <p class="auth-sub">سجّلي دخولك لعرض جدولك الخاص — لكل مستخدم بياناتها الخاصة بها</p>
+    <label class="fld-label" for="authEmail">📧 البريد الإلكتروني</label>
+    <input type="email" id="authEmail" placeholder="example@email.com" autocomplete="username">
+    <label class="fld-label" for="authPin">🔒 الرقم السري (4 إلى 8 أرقام)</label>
+    <input type="password" id="authPin" placeholder="••••" inputmode="numeric" maxlength="8" autocomplete="current-password">
+    <div class="auth-error" id="authError" role="alert"></div>
+    <div class="auth-actions">
+      <button type="button" class="auth-btn main" id="loginBtn">دخول</button>
+      <button type="button" class="auth-btn alt" id="registerBtn">إنشاء حساب جديد</button>
+    </div>
+    <button type="button" class="auth-forgot" id="forgotBtn">نسيت الرقم السري؟</button>
+    <div class="auth-note">🔒 خصوصيتك: بيانات كل مستخدم تُحفظ في متصفح جهازها هي فقط، ومحمية بالرقم السري، ولا تُرسل إلى أي خادم خارجي. للانتقال إلى جهاز آخر أنشئي حسابك من جديد هناك.</div>
+    <div class="auth-brand">نوف للغة الانجليزية <span class="en">@NE_English1</span> — لأن هدفك يستحق <span class="en">KEEP GOING</span></div>
+  </div>
+</div>
+
+<div class="wrap" id="appScreen" style="display:none">
 
   <header>
     <span class="badge">( الخطة التطويرية المجانية )</span>
@@ -176,6 +223,11 @@
       <span>📅 تاريخ بداية الشهر:</span>
       <input type="date" id="startInput">
       <span id="todayInfo"></span>
+    </div>
+    <div class="user-bar">
+      <span class="user-chip" id="userChip">👤 —</span>
+      <button type="button" class="ub-btn" id="pinBtn">🔑 تغيير الرقم السري</button>
+      <button type="button" class="ub-btn ub-logout" id="logoutBtn">⏻ خروج</button>
     </div>
   </header>
 
@@ -239,7 +291,7 @@
     <button class="btn-reset" id="resetBtn">🔄 تصفير الجدول</button>
   </footer>
 
-  <div class="save-note">💾 تُحفظ بياناتك تلقائياً في متصفحك: علامة كل يوم مع تاريخ إنجازه، والهدف وتاريخ البداية — أغلق الصفحة وستجدها كما تركتها.</div>
+  <div class="save-note">💾 بياناتك (علاماتك وهدفك) محفوظة في متصفح هذا الجهاز داخل حسابك الخاص — لا تُرسل لأي خادم، وكل مستخدم يرى بياناته هو فقط.</div>
 </div>
 
 <script>
@@ -252,7 +304,8 @@ var SKILLS = [
 ];
 var WEEKS = ['الاسبوع الاول','الاسبوع الثاني','الاسبوع الثالث','الاسبوع الرابع'];
 var TOTAL = 16, DAYS = 30;
-var KEY = 'ne_tracker_v1';
+var LEGACY_KEY = 'ne_tracker_v1';
+var USERS_KEY = 'ne_users_v1', DATA_PREFIX = 'ne_data_v1::', SESS_KEY = 'ne_session_v1', LEGACY_FLAG = 'ne_legacy_v1_handled';
 
 function todayISO(){
   var t = new Date();
@@ -272,20 +325,23 @@ function normalize(s){
   s.done = clean;
   return s;
 }
-function load(){
+function loadUserData(ek){
   try {
-    var s = JSON.parse(localStorage.getItem(KEY));
+    var s = JSON.parse(localStorage.getItem(DATA_PREFIX + ek));
     if (s && typeof s === 'object') return normalize(s);
   } catch(e) {}
   return { goal:'', start: todayISO(), done:{} };
 }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
+function save(){
+  if (!currentUser) return;
+  try { localStorage.setItem(DATA_PREFIX + currentUser, JSON.stringify(state)); } catch(e) {}
+}
 
 var storageOK = true;
-try { localStorage.setItem(KEY + '_t', '1'); localStorage.removeItem(KEY + '_t'); }
+try { localStorage.setItem('ne_storage_test', '1'); localStorage.removeItem('ne_storage_test'); }
 catch(e){ storageOK = false; }
 
-var state = load();
+var state = null, currentUser = null;
 
 function parseISO(iso){ var p = iso.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
 function addDays(dt, n){ var d = new Date(dt); d.setDate(d.getDate()+n); return d; }
@@ -342,8 +398,6 @@ WEEKS.forEach(function(name, i){
 /* ===== inputs ===== */
 var goalInput = document.getElementById('goalInput');
 var startInput = document.getElementById('startInput');
-goalInput.value = state.goal;
-startInput.value = state.start;
 goalInput.addEventListener('input', function(){ state.goal = goalInput.value; save(); });
 startInput.addEventListener('change', function(){
   if (startInput.value){ state.start = startInput.value; save(); render(); }
@@ -480,7 +534,7 @@ if (!storageOK){
   if (sn) sn.innerHTML = '⚠️ متصفحك يمنع الحفظ التلقائي (وضع التصفح الخاص مثلاً) — العلامات ستعمل الآن لكن لن تُحفظ بعد إغلاق الصفحة.';
 }
 /* ===== daily tracking: navigator + 30-day calendar (marks saved per day) ===== */
-var viewDay = curPlanDay();
+var viewDay = 1;
 function dayDate(n){ return addDays(parseISO(state.start), n - 1); }
 function curPlanDay(){
   var diff = Math.floor((parseISO(todayISO()) - parseISO(state.start)) / 86400000) + 1;
@@ -573,8 +627,148 @@ function renderDaily(){
   }
 }
 
+/* ===== auth: حسابات محلية (بريد + رقم سري) ببيانات منفصلة لكل مستخدم ===== */
+var authScreen = document.getElementById('authScreen');
+var appScreen = document.getElementById('appScreen');
+var authEmail = document.getElementById('authEmail');
+var authPin = document.getElementById('authPin');
+var authError = document.getElementById('authError');
+
+function emailKeyOf(em){ return String(em).toLowerCase().trim(); }
+function validEmail(em){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em); }
+function users(){ try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch(e) { return {}; } }
+function saveUsers(u){ try { localStorage.setItem(USERS_KEY, JSON.stringify(u)); } catch(e) {} }
+function hashPin(pin, salt){
+  var s = String(salt) + '::' + String(pin);
+  if (window.crypto && crypto.subtle && crypto.subtle.digest && window.TextEncoder){
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+  var h1 = 5381, h2 = 52711, i;
+  for (i = 0; i < s.length; i++){ var c = s.charCodeAt(i); h1 = ((h1 * 33) ^ c) >>> 0; h2 = ((h2 * 37) + c) >>> 0; }
+  return Promise.resolve(('0000000' + h1.toString(16)).slice(-8) + ('0000000' + h2.toString(16)).slice(-8));
+}
+function showAuthError(msg){ authError.textContent = msg; }
+function clearAuthForm(){ authPin.value = ''; showAuthError(''); }
+
+function enterAuth(){
+  authScreen.style.display = 'flex';
+  appScreen.style.display = 'none';
+  clearAuthForm();
+}
+function enterApp(){
+  authScreen.style.display = 'none';
+  appScreen.style.display = 'block';
+  var rec = users()[currentUser];
+  document.getElementById('userChip').textContent = '👤 ' + (rec ? rec.email : currentUser);
+  goalInput.value = state.goal;
+  startInput.value = state.start;
+  viewDay = curPlanDay();
+  render();
+}
+function startSession(ek){
+  try { localStorage.setItem(SESS_KEY, ek); } catch(e) {}
+  currentUser = ek;
+  state = loadUserData(ek);
+  maybeMigrateLegacy();
+  enterApp();
+  save();
+}
+function maybeMigrateLegacy(){
+  var handled = false;
+  try { handled = localStorage.getItem(LEGACY_FLAG) === '1'; } catch(e) {}
+  if (handled) return;
+  try { localStorage.setItem(LEGACY_FLAG, '1'); } catch(e) {}
+  var old = null;
+  try { old = JSON.parse(localStorage.getItem(LEGACY_KEY)); } catch(e) {}
+  if (old && typeof old === 'object'){
+    var st = normalize(old);
+    var hasData = (st.goal && st.goal.length) || (st.done && Object.keys(st.done).length);
+    if (hasData && confirm('وجدنا بيانات جدول سابقة محفوظة على هذا الجهاز (هدف/علامات).\nهل تريد ربطها بهذا الحساب؟\n(إلغاء = البدء بجدول جديد وتبقى البيانات القديمة كما هي)')){
+      state.goal = st.goal || state.goal;
+      state.start = st.start || state.start;
+      state.done = st.done || state.done;
+    }
+  }
+}
+function doRegister(){
+  var em = emailKeyOf(authEmail.value), pin = authPin.value.trim();
+  if (!validEmail(em)) return showAuthError('⚠️ أدخلي بريداً إلكترونياً صحيحاً');
+  if (!/^\d{4,8}$/.test(pin)) return showAuthError('⚠️ الرقم السري يجب أن يكون من 4 إلى 8 أرقام');
+  var u = users();
+  if (u[em]) return showAuthError('⚠️ هذا البريد مسجل لدينا — استخدمي زر «دخول»');
+  var salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  hashPin(pin, salt).then(function(h){
+    u[em] = { email: em, salt: salt, pinHash: h, created: Date.now() };
+    saveUsers(u);
+    startSession(em);
+  });
+}
+function doLogin(){
+  var em = emailKeyOf(authEmail.value), pin = authPin.value.trim();
+  if (!validEmail(em)) return showAuthError('⚠️ أدخلي بريداً إلكترونياً صحيحاً');
+  if (!/^\d{4,8}$/.test(pin)) return showAuthError('⚠️ أدخلي الرقم السري');
+  var rec = users()[em];
+  if (!rec) return showAuthError('⚠️ لا يوجد حساب بهذا البريد — أنشئي حساباً جديداً');
+  hashPin(pin, rec.salt).then(function(h){
+    if (h !== rec.pinHash) return showAuthError('⚠️ الرقم السري غير صحيح');
+    startSession(em);
+  });
+}
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('registerBtn').addEventListener('click', doRegister);
+authPin.addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
+authEmail.addEventListener('keydown', function(e){ if (e.key === 'Enter') authPin.focus(); });
+
+document.getElementById('logoutBtn').addEventListener('click', function(){
+  if (confirm('الخروج من حسابك؟ بياناتك محفوظة وستجدها عند دخولك مجدداً من هذا الجهاز.')){
+    try { localStorage.removeItem(SESS_KEY); } catch(e) {}
+    currentUser = null; state = null;
+    authEmail.value = '';
+    enterAuth();
+  }
+});
+document.getElementById('pinBtn').addEventListener('click', function(){
+  if (!currentUser) return;
+  var rec = users()[currentUser];
+  var cur = prompt('أدخلي الرقم السري الحالي:');
+  if (cur === null) return;
+  hashPin(cur.trim(), rec.salt).then(function(h){
+    if (h !== rec.pinHash) return alert('الرقم السري الحالي غير صحيح');
+    var np = prompt('أدخلي الرقم السري الجديد (4 إلى 8 أرقام):');
+    if (np === null) return;
+    np = np.trim();
+    if (!/^\d{4,8}$/.test(np)) return alert('الرقم السري يجب أن يكون من 4 إلى 8 أرقام');
+    var salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    hashPin(np, salt).then(function(h2){
+      rec.salt = salt; rec.pinHash = h2;
+      var u = users(); u[currentUser] = rec; saveUsers(u);
+      alert('✅ تم تغيير الرقم السري بنجاح');
+    });
+  });
+});
+document.getElementById('forgotBtn').addEventListener('click', function(){
+  var em = emailKeyOf(prompt('أدخلي بريدك الإلكتروني المسجل:') || '');
+  if (!em) return;
+  if (!users()[em]) return alert('لا يوجد حساب بهذا البريد على هذا الجهاز');
+  if (!confirm('⚠️ إعادة تعيين الرقم السري تعني حذف بيانات هذا الحساب من هذا الجهاز (الهدف والعلامات)، لأنها محمية بالرقم السري.\nهل تريد المتابعة؟')) return;
+  if (!confirm('تأكيد أخير: حذف الحساب "' + em + '" وبياناته من هذا الجهاز نهائياً؟')) return;
+  var u = users(); delete u[em]; saveUsers(u);
+  try { localStorage.removeItem(DATA_PREFIX + em); } catch(e) {}
+  alert('تم حذف الحساب من هذا الجهاز. يمكنك الآن إنشاء حساب جديد بنفس البريد.');
+});
+
 buildDonut();
-render();
+var sess = null;
+try { sess = localStorage.getItem(SESS_KEY); } catch(e) {}
+if (sess && users()[sess]){
+  currentUser = sess;
+  state = loadUserData(sess);
+  enterApp();
+} else {
+  enterAuth();
+}
 </script>
 </body>
 </html>
